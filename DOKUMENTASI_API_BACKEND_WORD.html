@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>DOKUMENTASI BACKEND & REST API - GARAGEZKA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        h1 {
+            border-bottom: 2px solid #e53535;
+            padding-bottom: 10px;
+            color: #e53535;
+        }
+        h2 {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-top: 30px;
+            color: #333;
+        }
+        h3 {
+            color: #444;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f5f5f5;
+            color: #333;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        pre {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+        }
+        code {
+            font-family: Consolas, monospace;
+            background-color: #f8f8f8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        pre code {
+            padding: 0;
+            background-color: transparent;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        .info-box {
+            background-color: #fdf7f7;
+            border-left: 4px solid #e53535;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .screenshot-box {
+            background-color: #f7fafd;
+            border-left: 4px solid #357ae8;
+            padding: 15px;
+            margin: 20px 0;
+            color: #1a5cbf;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>DOKUMENTASI BACKEND & REST API - GARAGEZKA</h1>
+    <p>Dokumen ini berisi spesifikasi teknis mengenai arsitektur backend, skema basis data, serta dokumentasi REST API untuk sistem <strong>Garagezka</strong> (Sistem Booking Servis Kendaraan). Dokumen ini disusun untuk kebutuhan dokumentasi laporan proyek.</p>
+
+    <hr>
+
+    <h2>1. Arsitektur Backend</h2>
+    <p>Backend <strong>Garagezka</strong> dibangun menggunakan <strong>PHP (Hypertext Preprocessor)</strong> dengan konektivitas database MySQL/MariaDB menggunakan ekstensi <strong>MySQLi</strong> (Prepared Statements).</p>
+
+    <h3>Karakteristik Utama Backend:</h3>
+    <ul>
+        <li><strong>Stateless API:</strong> Bagian REST API dirancang secara <em>stateless</em> menggunakan autentikasi berbasis <strong>Bearer Token</strong> (<code>api_token</code>).</li>
+        <li><strong>CORS Enabled:</strong> Mendukung integrasi lintas platform (Cross-Origin Resource Sharing) sehingga API dapat dikonsumsi oleh aplikasi frontend terpisah (misalnya React, Vue, Mobile App, dll.).</li>
+        <li><strong>Security-First:</strong>
+            <ul>
+                <li>Pencegahan <strong>SQL Injection</strong> menggunakan <em>Prepared Statements</em> pada semua kueri SQL dinamis.</li>
+                <li>Proteksi kredensial menggunakan fungsi enkripsi <strong>Bcrypt</strong> (<code>password_hash</code> dan <code>password_verify</code>).</li>
+            </ul>
+        </li>
+        <li><strong>Response Format:</strong> Semua respon REST API dikembalikan dalam format standard <strong>JSON (JavaScript Object Notation)</strong> dengan kode status HTTP yang sesuai (e.g. <code>200 OK</code>, <code>201 Created</code>, <code>401 Unauthorized</code>, <code>403 Forbidden</code>, <code>405 Method Not Allowed</code>, <code>500 Internal Server Error</code>).</li>
+    </ul>
+
+    <hr>
+
+    <h2>2. Skema & Struktur Basis Data</h2>
+    <p>Database <strong>Garagezka</strong> terdiri dari 6 tabel utama untuk menangani pengguna, kendaraan, jenis layanan, pesanan/booking, notifikasi, serta pesan kontak masuk.</p>
+
+    <div class="screenshot-box">
+        <strong>📸 [SCREENSHOT REKOMENDASI]:</strong> Tempelkan screenshot relasi tabel (Designer phpMyAdmin) atau screenshot data tabel dari phpMyAdmin di sini untuk memperkuat dokumen laporan Anda.
+    </div>
+
+    <h3>Detail Spesifikasi Tabel</h3>
+
+    <h4>1. Tabel <code>users</code></h4>
+    <p>Tabel untuk menampung data akun pengguna (pelanggan dan administrator).</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Nama Kolom</th>
+                <th>Tipe Data</th>
+                <th>Keterangan / Constraint</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>id</strong></td>
+                <td>INT</td>
+                <td>PK, Auto Increment</td>
+            </tr>
+            <tr>
+                <td><strong>nama_lengkap</strong></td>
+                <td>VARCHAR(100)</td>
+                <td>Not Null</td>
+            </tr>
+            <tr>
+                <td><strong>email</strong></td>
+                <td>VARCHAR(100)</td>
+                <td>Unique, Not Null</td>
+            </tr>
+            <tr>
+                <td><strong>no_hp</strong></td>
+                <td>VARCHAR(20)</td>
+                <td>Unique, Not Null</td>
+            </tr>
+            <tr>
+                <td><strong>password</strong></td>
+                <td>VARCHAR(255)</td>
+                <td>Not Null (Hash Bcrypt)</td>
+            </tr>
+            <tr>
+                <td><strong>foto_profil</strong></td>
+                <td>VARCHAR(255)</td>
+                <td>Nullable (Path file foto profil)</td>
+            </tr>
+            <tr>
+                <td><strong>role</strong></td>
+                <td>ENUM('user', 'admin')</td>
+                <td>Default 'user'</td>
+            </tr>
+            <tr>
+                <td><strong>reset_token</strong></td>
+                <td>VARCHAR(100)</td>
+                <td>Nullable (Token reset password)</td>
+            </tr>
+            <tr>
+                <td><strong>reset_token_expires</strong></td>
+                <td>DATETIME</td>
+                <td>Nullable</td>
+            </tr>
+            <tr>
+                <td><strong>api_token</strong></td>
+                <td>VARCHAR(255)</td>
+                <td>Nullable (Token autentikasi REST API)</td>
+            </tr>
+            <tr>
+                <td><strong>created_at</strong></td>
+                <td>TIMESTAMP</td>
+                <td>Default CURRENT_TIMESTAMP</td>
+            </tr>
+            <tr>
+                <td><strong>updated_at</strong></td>
+                <td>TIMESTAMP</td>
+                <td>Default CURRENT_TIMESTAMP ON UPDATE</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h4>2. Tabel <code>kendaraan</code></h4>
+    <p>Menyimpan data kendaraan yang didaftarkan oleh masing-masing user.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Nama Kolom</th>
+                <th>Tipe Data</th>
+                <th>Keterangan / Constraint</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>id</strong></td>
+                <td>INT</td>
+                <td>PK, Auto Increment</td>
+            </tr>
+            <tr>
+                <td><strong>user_id</strong></td>
+                <td>INT</td>
+                <td>FK ke <code>users.id</code> (Cascade On Delete)</td>
+            </tr>
+            <tr>
+                <td><strong>nama_kendaraan</strong></td>
+                <td>VARCHAR(100)</td>
+                <td>Not Null (Contoh: "Honda Vario 150")</td>
+            </tr>
+            <tr>
+                <td><strong>nomor_plat</strong></td>
+                <td>VARCHAR(20)</td>
+                <td>Not Null (Contoh: "B 1234 ABC")</td>
+            </tr>
+            <tr>
+                <td><strong>tahun_produksi</strong></td>
+                <td>YEAR</td>
+                <td>Not Null</td>
+            </tr>
+            <tr>
+                <td><strong>warna</strong></td>
+                <td>VARCHAR(50)</td>
+                <td>Nullable</td>
+            </tr>
+            <tr>
+                <td><strong>created_at</strong></td>
+                <td>TIMESTAMP</td>
+                <td>Default CURRENT_TIMESTAMP</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h4>3. Tabel <code>layanan</code></h4>
+    <p>Menyimpan daftar layanan servis yang tersedia di bengkel.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Nama Kolom</th>
+                <th>Tipe Data</th>
+                <th>Keterangan / Constraint</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>id</strong></td>
+                <td>INT</td>
+                <td>PK, Auto Increment</td>
+            </tr>
+            <tr>
+                <td><strong>nama_layanan</strong></td>
+                <td>VARCHAR(100)</td>
+                <td>Not Null</td>
+            </tr>
+            <tr>
+                <td><strong>deskripsi</strong></td>
+                <td>TEXT</td>
+                <td>Nullable</td>
+            </tr>
+            <tr>
+                <td><strong>harga</strong></td>
+                <td>DECIMAL(12,2)</td>
+                <td>Not Null</td>
+            </tr>
+            <tr>
+                <td><strong>icon</strong></td>
+                <td>VARCHAR(50)</td>
+                <td>Default 'wrench'</td>
+            </tr>
+            <tr>
+                <td><strong>estimasi_waktu</strong></td>
+                <td>VARCHAR(50)</td>
+                <td>Default '1-2 jam'</td>
+            </tr>
+            <tr>
+                <td><strong>is_active</strong></td>
+                <td>TINYINT(1)</td>
+                <td>Default 1</td>
+            </tr>
+            <tr>
+                <td><strong>created_at</strong></td>
+                <td>TIMESTAMP</td>
+                <td>Default CURRENT_TIMESTAMP</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h4>4. Tabel <code>booking</code></h4>
+    <p>Menyimpan transaksi booking servis kendaraan.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Nama Kolom</th>
+                <th>Tipe Data</th>
+                <th>Keterangan / Constraint</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>id</strong></td>
+                <td>INT</td>
+                <td>PK, Auto Increment</td>
+            </tr>
+            <tr>
+                <td><strong>user_id</strong></td>
+                <td>INT</td>
+                <td>FK ke <code>users.id</code></td>
+            </tr>
+            <tr>
+                <td><strong>kendaraan_id</strong></td>
+                <td>INT</td>
+                <td>FK ke <code>kendaraan.id</code></td>
+            </tr>
+            <tr>
+                <td><strong>layanan_id</strong></td>
+                <td>INT</td>
+                <td>FK ke <code>layanan.id</code></td>
+            </tr>
+            <tr>
+                <td><strong>tanggal</strong></td>
+                <td>DATE</td>
+                <td>Not Null</td>
+            </tr>
+            <tr>
+                <td><strong>jam</strong></td>
+                <td>TIME</td>
+                <td>Not Null</td>
+            </tr>
+            <tr>
+                <td><strong>status</strong></td>
+                <td>ENUM('pending', 'dikonfirmasi', 'selesai', 'dibatalkan')</td>
+                <td>Default 'pending'</td>
+            </tr>
+            <tr>
+                <td><strong>catatan</strong></td>
+                <td>TEXT</td>
+                <td>Nullable (Keluhan tambahan)</td>
+            </tr>
+            <tr>
+                <td><strong>biaya_servis</strong></td>
+                <td>DECIMAL(12,2)</td>
+                <td>Default 0</td>
+            </tr>
+            <tr>
+                <td><strong>biaya_admin</strong></td>
+                <td>DECIMAL(12,2)</td>
+                <td>Default 10000</td>
+            </tr>
+            <tr>
+                <td><strong>total_biaya</strong></td>
+                <td>DECIMAL(12,2)</td>
+                <td>Default 0</td>
+            </tr>
+            <tr>
+                <td><strong>created_at</strong></td>
+                <td>TIMESTAMP</td>
+                <td>Default CURRENT_TIMESTAMP</td>
+            </tr>
+            <tr>
+                <td><strong>updated_at</strong></td>
+                <td>TIMESTAMP</td>
+                <td>Default CURRENT_TIMESTAMP ON UPDATE</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>3. Spesifikasi REST API (Endpoints)</h2>
+    <p>Semua endpoint API mengembalikan respon berformat JSON dan diimplementasikan di bawah direktori <code>/api/</code>.</p>
+
+    <h3>A. Autentikasi Pengguna</h3>
+    <h4><code>POST /api/auth.php</code></h4>
+    <p>Mengautentikasi kredensial pengguna dan mengembalikan API Token.</p>
+    <ul>
+        <li><strong>Headers:</strong> <code>Content-Type: application/json</code></li>
+        <li><strong>Request Body:</strong></li>
+    </ul>
+    <pre><code>{
+  "email": "azka@email.com",
+  "password": "user123"
+}</code></pre>
+    <ul>
+        <li><strong>Response (Success - 200 OK):</strong></li>
+    </ul>
+    <pre><code>{
+  "status": "success",
+  "message": "Login berhasil",
+  "token": "7a9f73f8d38cb0973a2164c4c23932be6058097b5e40e6c86a...",
+  "user": {
+    "id": 2,
+    "nama": "Azka Gans",
+    "email": "azka@email.com",
+    "role": "user",
+    "no_hp": "081298765432"
+  }
+}</code></pre>
+    <ul>
+        <li><strong>Response (Error - 401 Unauthorized):</strong></li>
+    </ul>
+    <pre><code>{
+  "status": "error",
+  "message": "Email atau password salah."
+}</code></pre>
+
+    <div class="screenshot-box">
+        <strong>📸 [SCREENSHOT PENGUJIAN API]:</strong> Tempelkan screenshot pengujian endpoint <code>POST /api/auth.php</code> (Login) di Postman / Thunder Client di sini.
+    </div>
+
+    <hr>
+
+    <h3>B. Layanan Servis</h3>
+    <h4><code>GET /api/layanan.php</code></h4>
+    <p>Mengambil semua daftar layanan servis yang aktif secara publik.</p>
+    <ul>
+        <li><strong>Headers:</strong> None (Public Endpoint)</li>
+        <li><strong>Response (Success - 200 OK):</strong></li>
+    </ul>
+    <pre><code>{
+  "status": "success",
+  "total": 8,
+  "data": [
+    {
+      "id": 1,
+      "nama_layanan": "Ganti Oli",
+      "deskripsi": "Penggantian oli mesin dengan oli berkualitas...",
+      "harga": 100000,
+      "icon": "oil",
+      "estimasi_waktu": "30-60 menit"
+    },
+    {
+      "id": 2,
+      "nama_layanan": "Tune Up",
+      "deskripsi": "Kalibrasi yang xtrem dari segala aspek...",
+      "harga": 150000,
+      "icon": "tune",
+      "estimasi_waktu": "1-2 jam"
+    }
+  ]
+}</code></pre>
+
+    <div class="screenshot-box">
+        <strong>📸 [SCREENSHOT PENGUJIAN API]:</strong> Tempelkan screenshot pengujian endpoint <code>GET /api/layanan.php</code> (Melihat Layanan) di Postman / Thunder Client di sini.
+    </div>
+
+    <hr>
+
+    <h3>C. Booking Servis (Transaksi)</h3>
+    <div class="info-box">
+        <strong>Penting:</strong> Semua endpoint booking membutuhkan header autentikasi token <code>Authorization: Bearer &lt;api_token&gt;</code>.
+    </div>
+
+    <h4><code>GET /api/bookings.php</code></h4>
+    <p>Mendapatkan semua daftar riwayat booking milik pengguna yang sedang login.</p>
+    <ul>
+        <li><strong>Headers:</strong> <code>Authorization: Bearer &lt;api_token&gt;</code></li>
+        <li><strong>Response (Success - 200 OK):</strong></li>
+    </ul>
+    <pre><code>{
+  "status": "success",
+  "user": "Azka Gans",
+  "total": 1,
+  "data": [
+    {
+      "id": 5,
+      "tanggal": "2026-07-01",
+      "jam": "09:00:00",
+      "status": "pending",
+      "total_biaya": 110000,
+      "keluhan": "Mesin brebet",
+      "nama_kendaraan": "Honda Vario 150",
+      "nomor_plat": "B 1234 ABC",
+      "nama_layanan": "Ganti Oli",
+      "harga": 100000
+    }
+  ]
+}</code></pre>
+
+    <div class="screenshot-box">
+        <strong>📸 [SCREENSHOT PENGUJIAN API]:</strong> Tempelkan screenshot pengujian endpoint <code>GET /api/bookings.php</code> (Daftar Booking User) di Postman / Thunder Client di sini.
+    </div>
+
+    <h4><code>POST /api/bookings.php</code></h4>
+    <p>Membuat booking servis baru untuk pengguna yang sedang login.</p>
+    <ul>
+        <li><strong>Headers:</strong> <code>Authorization: Bearer &lt;api_token&gt;</code>, <code>Content-Type: application/json</code></li>
+        <li><strong>Request Body:</strong></li>
+    </ul>
+    <pre><code>{
+  "kendaraan_id": 1,
+  "layanan_id": 1,
+  "tanggal": "2026-07-01",
+  "jam": "09:00",
+  "keluhan": "Mesin brebet"
+}</code></pre>
+    <ul>
+        <li><strong>Response (Success - 201 Created):</strong></li>
+    </ul>
+    <pre><code>{
+  "status": "success",
+  "message": "Booking berhasil dibuat.",
+  "booking_id": 6,
+  "data": [
+    {
+      "tanggal": "2026-07-01",
+      "jam": "09:00",
+      "total_biaya": 100000,
+      "status": "pending"
+    }
+  ]
+}</code></pre>
+
+    <div class="screenshot-box">
+        <strong>📸 [SCREENSHOT PENGUJIAN API]:</strong> Tempelkan screenshot pengujian endpoint <code>POST /api/bookings.php</code> (Membuat Booking Baru) di Postman / Thunder Client di sini.
+    </div>
+
+    <hr>
+
+    <h3>D. Manajemen Pengguna (Admin Only)</h3>
+    <h4><code>GET /api/users.php</code></h4>
+    <p>Mengambil semua daftar pelanggan (tidak termasuk admin) beserta jumlah kendaraan & booking yang dimilikinya.</p>
+    <ul>
+        <li><strong>Headers:</strong> <code>Authorization: Bearer &lt;token_admin&gt;</code></li>
+        <li><strong>Response (Success - 200 OK):</strong></li>
+    </ul>
+    <pre><code>{
+  "status": "success",
+  "total": 1,
+  "data": [
+    {
+      "id": 2,
+      "nama_lengkap": "Azka Gans",
+      "email": "azka@email.com",
+      "no_hp": "081298765432",
+      "created_at": "2026-06-20 17:39:00",
+      "total_kendaraan": 1,
+      "total_booking": 1
+    }
+  ]
+}</code></pre>
+    <ul>
+        <li><strong>Response (Error - 403 Forbidden):</strong></li>
+    </ul>
+    <pre><code>{
+  "status": "error",
+  "message": "Akses ditolak. Endpoint ini hanya untuk admin."
+}</code></pre>
+
+    <div class="screenshot-box">
+        <strong>📸 [SCREENSHOT PENGUJIAN API]:</strong> Tempelkan screenshot pengujian endpoint <code>GET /api/users.php</code> (Daftar User - Admin Only) di Postman / Thunder Client di sini.
+    </div>
+
+    <hr>
+
+    <h2>4. Penanganan Kode Respon & Validasi Token</h2>
+    <p>Mekanisme validasi token dikontrol terpusat. Jika token tidak valid, kadaluarsa, atau header hilang, server secara otomatis membatalkan eksekusi kueri dan merespon dengan:</p>
+    <pre><code>{
+  "status": "error",
+  "message": "Token tidak valid atau sudah kadaluarsa."
+}</code></pre>
+
+</body>
+</html>
