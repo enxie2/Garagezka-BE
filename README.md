@@ -6,9 +6,6 @@ Repository ini berisi layanan Backend, konfigurasi database, API endpoint, serta
 - `api/` - Logika pemrosesan endpoint API JSON.
 - `config/` - Konfigurasi database dan sistem.
 - `database/` - Skema database SQL (`garagezka.sql`).
-- `DOKUMENTASI_API_BACKEND.md` - Dokumentasi API dalam format Markdown.
-- `DOKUMENTASI_API_BACKEND.html` - Dokumentasi API interaktif HTML.
-- `DOKUMENTASI_API_BACKEND_WORD.html` - Dokumentasi API yang diformat khusus untuk dikonversi ke Microsoft Word.
 
 ## Fitur Utama Backend
 1. **Autentikasi Aman:** Registrasi, Login, Manajemen Sesi, dan Lupa Password.
